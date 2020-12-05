@@ -5,7 +5,8 @@ from lxml.html import fromstring
 import uvicorn
 from datetime import datetime
 import asyncio
-
+from secretinfo import USER, PASSWORD, HOST, DATABASE
+from db_connection import DatabaseConnector
 
 class Requester:
     # FIXME
@@ -13,7 +14,7 @@ class Requester:
     def __init__(self):
         self.row_url = 'https://www.avito.ru/{}'
 
-    def prepare_request(self, region, query):
+    def prepare_request(self, region):
         self.url = self.row_url.format(region)
 
     def make_request(self, params=None):
@@ -53,19 +54,26 @@ class Parser:
 
 
 app = FastAPI()
-
+db_connector = DatabaseConnector()
 
 @app.on_event("startup")
 async def start_consuming():
-    # asyncio.create_task(...)
-    pass
+    # FIXME
+    # create db_connection
+    await db_connector.connect(USER, PASSWORD, HOST, DATABASE)
+    asyncio.create_task(db_connector.select_db())
+    
 
+
+@app.on_event("shutdown")
+async def shutdown():
+    await db_connector.disconnect()
 
 @app.get("/add/{region}")
-def read_item(region: str, query: Optional[str] = None):
+async def read_item(region: str, query: Optional[str] = None):
     a = Requester()
-    a.prepare_request(region=region, query=query)
-    answer = a.make_request(params={'q':query})
+    a.prepare_request(region=region)
+    answer = a.make_request(params={'q': query})
     parser = Parser(answer)
     parser.prepare_to_parse()
     count = parser.parse()
@@ -74,4 +82,6 @@ def read_item(region: str, query: Optional[str] = None):
 
 if __name__ == '__main__':
     # uvicorn.run("main:app", host="127.0.0.1", port=5000, log_level="info")
+    # uvicorn main:app --reload
+    # CREATE TABLE region_query (id INT PRIMARY KEY AUTO_INCREMENT, region VARCHAR(50) NOT NULL, query VARCHAR(30));
     pass
