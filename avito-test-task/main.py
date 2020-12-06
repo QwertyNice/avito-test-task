@@ -61,7 +61,8 @@ async def start_consuming():
     # FIXME
     # create db_connection
     await db_connector.connect(USER, PASSWORD, HOST, DATABASE)
-    asyncio.create_task(db_connector.select_db())
+    await db_connector.check_tables()
+    # asyncio.create_task(db_connector.select_db())
     
 
 
@@ -83,5 +84,6 @@ async def read_item(region: str, query: Optional[str] = None):
 if __name__ == '__main__':
     # uvicorn.run("main:app", host="127.0.0.1", port=5000, log_level="info")
     # uvicorn main:app --reload
-    # CREATE TABLE region_query (id INT PRIMARY KEY AUTO_INCREMENT, region VARCHAR(50) NOT NULL, query VARCHAR(30));
+    # CREATE TABLE pair (id INT PRIMARY KEY AUTO_INCREMENT, region VARCHAR(50) NOT NULL, query VARCHAR(30));
+    # CREATE TABLE timestamp (id INT PRIMARY KEY AUTO_INCREMENT, timestamp DECIMAL(11,1), count INT, pair_id INT, FOREIGN KEY (pair_id) REFERENCES pair(id));
     pass

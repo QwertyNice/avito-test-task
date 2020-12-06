@@ -7,7 +7,7 @@ class DatabaseConnector():
 
     def __init__(self):
         # FIXME
-        # Check db `region_query` is created
+        # Check db `pair` is created
         # Check db `timestamps` is created
         pass
 
@@ -22,7 +22,7 @@ class DatabaseConnector():
     async def select_db(self):
         cursor = self.conn.cursor()
         with cursor:
-            query = ("SELECT * FROM region_query")
+            query = ("SELECT * FROM pair")
             while True:
                 cursor.execute(query)
                 res = []
@@ -30,3 +30,10 @@ class DatabaseConnector():
                     res.append(i)
                 print(res)
                 await asyncio.sleep(2)
+
+    async def check_tables(self):
+        cursor = self.conn.cursor()
+        with cursor:
+            query = ("SHOW TABLES")
+            cursor.execute(query)
+            print(list(cursor))
