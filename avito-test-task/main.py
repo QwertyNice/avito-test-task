@@ -78,16 +78,17 @@ class Parser:
 
 app = FastAPI()
 
-# db_connector = DatabaseConnector()
+db_connector = DatabaseConnector()
 
 
 @app.on_event("startup")
 async def start_consuming():
     # FIXME
-    # create db_connection
     await db_connector.connect(USER, PASSWORD, HOST, DATABASE)
-    await db_connector.check_tables()
     await db_connector.show_all_tables()
+    # await db_connector.select_id_from_pair_db('Ufa', 'Trad')
+    # await db_connector.insert_to_pair_db('Ufa', 'Trad')
+    # await db_connector.insert_to_counter_db(1234567890.1, 434, 4)
     # asyncio.create_task(db_connector.select_db())
 
 
@@ -98,26 +99,24 @@ async def shutdown():
 
 @app.get("/add/{region}")
 async def read_item(region: str, query: Optional[str] = None):
-    db_query = 'SELECT * FROM ...'
-    if db_query:
-        pair_id = ... # id пары под индексом ноль
-    else:
-        requester.prepare_request(region=region)
-        answer = requester.make_request(params={'q': query})
-        parser = Parser(answer)
-        parser.prepare_to_parse()
-        if not parser.check_valid_region():
-            pair_id = 'Введен невалидный регион.'
-        else:
-            query = parser.check_query(q=query)
-        # добавляем регион и запрос в SQL
-        pair_id = ... # присваиваем новому региону и запросу id
-    return {"id": pair_id}
+    # db_query = 'SELECT * FROM ...'
+    # if db_query:
+    #     pair_id = ... # id пары под индексом ноль
+    # else:
+    #     requester.prepare_request(region=region)
+    #     answer = requester.make_request(params={'q': query})
+    #     parser = Parser(answer)
+    #     parser.prepare_to_parse()
+    #     if not parser.check_valid_region():
+    #         pair_id = 'Введен невалидный регион.'
+    #     else:
+    #         query = parser.check_query(q=query)
+    #     # добавляем регион и запрос в SQL
+    #     pair_id = ... # присваиваем новому региону и запросу id
+    # return {"id": pair_id}
+    pass
 
 
 if __name__ == '__main__':
     # uvicorn.run("main:app", host="127.0.0.1", port=5000, log_level="info")
-    # uvicorn main:app --reload
-    # CREATE TABLE pair (id INT PRIMARY KEY AUTO_INCREMENT, region VARCHAR(50) NOT NULL, query VARCHAR(30));
-    # CREATE TABLE timestamp (id INT PRIMARY KEY AUTO_INCREMENT, timestamp DECIMAL(11,1), count INT, pair_id INT, FOREIGN KEY (pair_id) REFERENCES pair(id));
     pass

@@ -1,4 +1,5 @@
 import asyncio
+from typing import Optional
 import mysql.connector
 from secretinfo import USER, PASSWORD, HOST, DATABASE
 
@@ -6,12 +7,12 @@ from secretinfo import USER, PASSWORD, HOST, DATABASE
 class DatabaseConnector():
 
     tables = {'pair': 'CREATE TABLE pair (id INT PRIMARY KEY AUTO_INCREMENT, region VARCHAR(50) NOT NULL, query VARCHAR(30));',
-              'timestamp': 'CREATE TABLE timestamp (id INT PRIMARY KEY AUTO_INCREMENT, timestamp DECIMAL(11,1), count INT, pair_id INT, FOREIGN KEY (pair_id) REFERENCES pair(id));'}
+              'counter': 'CREATE TABLE counter (id INT PRIMARY KEY AUTO_INCREMENT, timestamp DECIMAL(11,1), count INT, pair_id INT, FOREIGN KEY (pair_id) REFERENCES pair(id));'}
     
     def __init__(self):
         # FIXME
         # Check db `pair` is created
-        # Check db `timestamps` is created
+        # Check db `counter` is created
         pass
 
     async def connect(self, user, password, host, database):
@@ -55,5 +56,39 @@ class DatabaseConnector():
                 if not table in remote_tables:
                     cursor.execute(self.tables[table])
 
-    async def add_pair_to_db(self, region, query):
-        pass
+    async def select_id_from_pair_db(self, region: str, query: Optional[str] = None) -> Optional[int]:
+        
+        cursor = self.conn.cursor()
+        with cursor:
+            if not query:
+                db_query = ("SELECT id FROM pair WHERE region=%s AND query IS %s;")
+            else:
+                db_query = ("SELECT id FROM pair WHERE region=%s AND query=%s;")
+            cursor.execute(db_query, (region, query))
+            
+            result_list = list(cursor)
+            if not result_list:
+                return None
+            
+            pair_id = result_list[0]
+            return pair_id
+    
+    async def insert_to_pair_db(self, region: str, query: Optional[str] = None) -> int:
+        cursor = self.conn.cursor()
+        with cursor:
+            db_query = "INSERT INTO pair (region, query) VALUES (%s, %s);"
+            cursor.execute(db_query, (region, query))
+            self.conn.commit()
+        pair_id = await self.select_id_from_pair_db(region, query)
+        return pair_id
+
+    async def insert_to_counter_db(self, timestamp: float, count: int, pair_id: int):
+        cursor = self.conn.cursor()
+        with cursor:
+            assert_query = "SELECT id FROM pair WHERE id=%s;"
+            cursor.execute(assert_query, [pair_id])
+            assert list(cursor)
+            
+            db_query = "INSERT INTO counter (timestamp, count, pair_id) VALUES (%s, %s, %s);"
+            cursor.execute(db_query, (timestamp, count, pair_id))
+            self.conn.commit()
