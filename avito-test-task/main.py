@@ -84,7 +84,6 @@ app = FastAPI()
 @app.on_event("startup")
 async def start_consuming():
     # FIXME
-    # create db_connection
     await db_connector.connect(USER, PASSWORD, HOST, DATABASE)
     asyncio.create_task(db_connector.select_db())
 
