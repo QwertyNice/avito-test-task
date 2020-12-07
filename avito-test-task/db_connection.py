@@ -37,7 +37,7 @@ class DatabaseConnector():
                 print(res)
                 await asyncio.sleep(2)
 
-    async def select_all_tables(self):
+    async def show_all_tables(self):
         '''Just checks and prints all existing tables in db'''
         cursor = self.conn.cursor()
         with cursor:
