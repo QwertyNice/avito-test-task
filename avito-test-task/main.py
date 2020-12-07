@@ -77,6 +77,7 @@ class Parser:
 
 
 app = FastAPI()
+
 # db_connector = DatabaseConnector()
 
 
