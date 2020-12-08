@@ -16,22 +16,22 @@ class Requester:
 
 class Parser:
 
-    def __init__(self, row_answer, query, skip_check=False):
+    def __init__(self, raw_answer, query, skip_check=False):
         # TODO случай skip_check = True
-        self.row_answer = row_answer
+        self.raw_answer = raw_answer
         self.error = None
         self.__tree = self._prepare_to_parse()
         self.valid_region = self._check_valid_region()
         if self.valid_region:
             if self._check_valid_query(q=query):
-                self.query = self.correct_mistake_in_query(q=query)
+                self.query = self._correct_mistake_in_query(q=query)
         # FIXME Вернуть правильно невалидный query
         else:
             self.query = query
 
     def _prepare_to_parse(self):
         """Функция преобразовывает код страницы в дерево"""
-        return fromstring(self.row_answer)
+        return fromstring(self.raw_answer)
 
     def _check_valid_region(self):
         """Функция проверяет, правильно ли пользователь ввел регион"""
@@ -62,7 +62,7 @@ class Parser:
             count = int(count[0].replace(',', ''))
             return count
 
-    def correct_mistake_in_query(self, q):
+    def _correct_mistake_in_query(self, q):
         """Функция исправляет ошибки в запросе, если они есть"""
         if q:
             q = self.__tree.xpath('//div[starts-with(@class, "index-suggest-")]/input/@value')[0]
