@@ -7,6 +7,7 @@ import requests
 import uvicorn
 from db_connection import DatabaseConnector
 from secretinfo import USER, PASSWORD, HOST, DATABASE
+from tools import Requester, Parser
 
 
 app = FastAPI()
@@ -21,7 +22,7 @@ async def start_consuming():
     # await db_connector.select_id_from_pair_db('Ufa', 'Trad')
     # await db_connector.insert_to_pair_db('Ufa', 'Trad')
     # await db_connector.insert_to_counter_db(1234567890.1, 434, 4)
-    asyncio.create_task(db_connector._parse_every_hour())
+    # asyncio.create_task(db_connector._parse_every_hour())
 
 
 @app.on_event("shutdown")
@@ -30,23 +31,31 @@ async def shutdown():
 
 
 @app.get("/add/{region}")
-async def read_item(region: str, query: Optional[str] = None):
-    # db_query = 'SELECT * FROM ...'
-    # if db_query:
-    #     pair_id = ... # id пары под индексом ноль
-    # else:
-    #     requester.prepare_request(region=region)
-    #     answer = requester.make_request(params={'q': query})
-    #     parser = Parser(answer)
-    #     parser.prepare_to_parse()
-    #     if not parser.check_valid_region():
-    #         pair_id = 'Введен невалидный регион.'
-    #     else:
-    #         query = parser.check_query(q=query)
-    #     # добавляем регион и запрос в SQL
-    #     pair_id = ... # присваиваем новому региону и запросу id
-    # return {"id": pair_id}
-    pass
+async def add_pair(region: str, query: Optional[str] = None):
+    pair_id = await db_connector.select_id_from_pair_db(region=region, query=query)
+    
+    if pair_id:
+        return {"id": pair_id}
+    requester = Requester()
+    requester.prepare_request(region=region)
+    answer = requester.make_request(params={'q': query})
+    parser = Parser(raw_answer=answer, query=query, skip_check=False)
+    
+    if parser.error:
+        return {"id": parser.error}
+
+    # Проверяем есть ли такой id после исправления ошибок в запросе
+    pair_id = await db_connector.select_id_from_pair_db(region=region, query=parser.query)
+    if pair_id:
+        return {"id": pair_id}
+    
+    pair_id = await db_connector.insert_to_pair_db(region=region, query=parser.query)
+    return {"id": pair_id}
+
+
+@app.get("/stat/{id}")
+async def show_stats(id: int, start: Optional[float] = None, end: Optional[float] = None):
+    return {"id": id, "start": start, "end": end}
 
 
 if __name__ == '__main__':
