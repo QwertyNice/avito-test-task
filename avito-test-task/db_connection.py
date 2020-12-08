@@ -11,12 +11,6 @@ class DatabaseConnector():
     tables = {'pair': 'CREATE TABLE pair (id INT PRIMARY KEY AUTO_INCREMENT, region VARCHAR(50) NOT NULL, query VARCHAR(30));',
               'counter': 'CREATE TABLE counter (id INT PRIMARY KEY AUTO_INCREMENT, timestamp DECIMAL(11,1), count INT, pair_id INT, FOREIGN KEY (pair_id) REFERENCES pair(id));'}
     
-    def __init__(self):
-        # FIXME
-        # Check db `pair` is created
-        # Check db `counter` is created
-        pass
-
     async def connect(self, user, password, host, database):
         self.conn = mysql.connector.connect(user=user, password=password,
                                             host=host, database=database)
@@ -28,7 +22,6 @@ class DatabaseConnector():
             self.conn.close()
 
     async def _parse_every_hour(self, requester=Requester, parser=Parser):
-        # FIXME
         
         query = "SELECT id, region, query FROM pair"
         while True:
@@ -82,7 +75,7 @@ class DatabaseConnector():
             if not result_list:
                 return None
             
-            pair_id = result_list[0]
+            pair_id = result_list[0][0]
             return pair_id
     
     async def insert_to_pair_db(self, region: str, query: Optional[str] = None) -> int:
