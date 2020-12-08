@@ -1,6 +1,8 @@
 import asyncio
+from datetime import datetime
 from typing import Optional
 import mysql.connector
+from tools import Requester, Parser
 from secretinfo import USER, PASSWORD, HOST, DATABASE
 
 
@@ -25,18 +27,28 @@ class DatabaseConnector():
         if self.conn:
             self.conn.close()
 
-    async def parse_every_hour(self):
+    async def _parse_every_hour(self, requester=Requester, parser=Parser):
         # FIXME
-        cursor = self.conn.cursor()
-        with cursor:
-            query = ("SELECT * FROM pair")
-            while True:
+        
+        query = "SELECT id, region, query FROM pair"
+        while True:
+            await asyncio.sleep(5)
+            cursor = self.conn.cursor(buffered=True)
+            
+            with cursor:
                 cursor.execute(query)
-                res = []
-                for i in cursor:
-                    res.append(i)
-                print(res)
-                await asyncio.sleep(2)
+                for tup in cursor:
+                    
+                    requester_instance = requester()
+                    
+                    requester_instance.prepare_request(tup[1].lower())  # FIXME
+                    answer = requester_instance.make_request(params={'q': tup[2]})  # FIXME
+                    parser_instance = parser(row_answer=answer, query=tup[2], skip_check=True)
+                    count = parser_instance.parse_count(q=tup[2])
+                    timestamp = round(datetime.now().timestamp(), 1)
+                    await self.insert_to_counter_db(timestamp=timestamp, count=count, pair_id=tup[0])
+                    print(f'Added to counter db: {count=}, {timestamp=}, pair_id={tup[0]}')
+
 
     async def show_all_tables(self):
         '''Just checks and prints all existing tables in db'''
@@ -83,7 +95,7 @@ class DatabaseConnector():
         return pair_id
 
     async def insert_to_counter_db(self, timestamp: float, count: int, pair_id: int):
-        cursor = self.conn.cursor()
+        cursor = self.conn.cursor(buffered=True)
         with cursor:
             assert_query = "SELECT id FROM pair WHERE id=%s;"
             cursor.execute(assert_query, [pair_id])
@@ -92,3 +104,5 @@ class DatabaseConnector():
             db_query = "INSERT INTO counter (timestamp, count, pair_id) VALUES (%s, %s, %s);"
             cursor.execute(db_query, (timestamp, count, pair_id))
             self.conn.commit()
+
+    
