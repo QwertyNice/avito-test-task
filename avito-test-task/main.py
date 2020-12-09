@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 from fastapi import FastAPI
 from lxml.html import fromstring
 import requests
@@ -54,10 +54,14 @@ async def add_pair(region: str, query: Optional[str] = None):
 
 
 @app.get("/stat/{id}")
-async def show_stats(id: int, start: Optional[float] = None, end: Optional[float] = None):
-    return {"id": id, "start": start, "end": end}
+async def show_stats(id: int, start: Union[str, float, int] = None, end: Union[str, float, int] = None):
+    start_ts = datetime.fromisoformat(start).timestamp() if start else 0
+    end_ts = datetime.fromisoformat(end).timestamp() if start else 4128951923.0
+    timestamp_tuple, count_tuple = await db_connector.select_ts_from_counter_db(pair_id=id, start=start_ts, end=end_ts)
+    return {"id": id, "timestamp": timestamp_tuple, "count": count_tuple}
 
 
 if __name__ == '__main__':
     # uvicorn.run("main:app", host="127.0.0.1", port=5000, log_level="info")
     pass
+    "http://127.0.0.1:8000/stat/45?start=2020-12-09T16:23:56&end=2020-12-09T17:23:56"
