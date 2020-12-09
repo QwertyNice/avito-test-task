@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 import mysql.connector
 from tools import Requester, Parser
 from secretinfo import USER, PASSWORD, HOST, DATABASE
@@ -98,4 +98,18 @@ class DatabaseConnector():
             cursor.execute(db_query, (timestamp, count, pair_id))
             self.conn.commit()
 
-    
+    async def select_ts_from_counter_db(self, pair_id: int, start: Union[float, int], end: Union[float, int]):
+        db_query = "SELECT timestamp, count FROM counter WHERE timestamp >= %s AND timestamp <= %s AND pair_id=%s"
+        cursor = self.conn.cursor()
+        with cursor:
+            cursor.execute(db_query, (start, end, pair_id))
+            generator = zip(*cursor)
+            try:
+                timestamp_tuple = next(generator)
+                count_tuple = next(generator)
+            except StopIteration:
+                timestamp_tuple = tuple()
+                count_tuple = tuple()
+            
+            return timestamp_tuple, count_tuple
+        
