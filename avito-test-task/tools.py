@@ -17,15 +17,14 @@ class Requester:
 class Parser:
 
     def __init__(self, raw_answer, query, skip_check=False):
-        # TODO случай skip_check = True
         self.raw_answer = raw_answer
-        self.error = None
         self.__tree = self._prepare_to_parse()
-        self.valid_region = self._check_valid_region()
-        if self.valid_region:
-            if self._check_valid_query(q=query):
-                self.query = self._correct_mistake_in_query(q=query)
-        # FIXME Вернуть правильно невалидный query
+        if not skip_check:
+            self.error = None
+            self.valid_region = self._check_valid_region()
+            if self.valid_region:
+                if self._check_valid_query(q=query):
+                    self.query = self._correct_mistake_in_query(q=query)
         else:
             self.query = query
 
