@@ -31,25 +31,13 @@ class DatabaseConnector():
             with cursor:
                 cursor.execute(query)
                 for tup in cursor:
-                    
-                    requester_instance = requester()
-                    
-                    requester_instance.prepare_request(tup[1].lower())  # FIXME
-                    answer = requester_instance.make_request(params={'q': tup[2]})  # FIXME
-                    parser_instance = parser(row_answer=answer, query=tup[2], skip_check=True)
+                    requester_instance = requester(region=tup[1].lower(),
+                                                   params={'q': tup[2]})  # FIXME
+                    parser_instance = parser(row_answer=requester_instance.answer, query=tup[2], skip_check=True)
                     count = parser_instance.parse_count(q=tup[2])
                     timestamp = round(datetime.now().timestamp(), 1)
                     await self.insert_to_counter_db(timestamp=timestamp, count=count, pair_id=tup[0])
                     print(f'Added to counter db: {count=}, {timestamp=}, pair_id={tup[0]}')
-
-
-    async def show_all_tables(self):
-        '''Just checks and prints all existing tables in db'''
-        cursor = self.conn.cursor()
-        with cursor:
-            query = ("SHOW TABLES")
-            cursor.execute(query)
-            print(list(cursor))
 
     async def _check_tables_exist(self):
         cursor = self.conn.cursor()
@@ -69,9 +57,10 @@ class DatabaseConnector():
                 db_query = ("SELECT id FROM pair WHERE region=%s AND query IS %s;")
             else:
                 db_query = ("SELECT id FROM pair WHERE region=%s AND query=%s;")
+
             cursor.execute(db_query, (region, query))
-            
             result_list = list(cursor)
+
             if not result_list:
                 return None
             
@@ -112,4 +101,3 @@ class DatabaseConnector():
                 count_tuple = tuple()
             
             return timestamp_tuple, count_tuple
-        

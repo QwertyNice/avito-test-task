@@ -36,10 +36,8 @@ async def add_pair(region: str, query: Optional[str] = None):
     
     if pair_id:
         return {"id": pair_id}
-    requester = Requester()
-    requester.prepare_request(region=region)
-    answer = requester.make_request(params={'q': query})
-    parser = Parser(raw_answer=answer, query=query, skip_check=False)
+    requester = Requester(region=region, params={'q': query})
+    parser = Parser(raw_answer=requester.answer, query=query, skip_check=False)
     
     if parser.error:
         return {"id": parser.error}
