@@ -15,18 +15,18 @@ db_connector = DatabaseConnector()
 
 
 @app.on_event("startup")
-async def start_consuming():
+async def start_consuming() -> None:
     await db_connector.connect(USER, PASSWORD, HOST, DATABASE)
-    asyncio.create_task(db_connector._parse_every_hour())
+    asyncio.create_task(db_connector._parse_loop(time_loop=15))
 
 
 @app.on_event("shutdown")
-async def shutdown():
+async def shutdown() -> None:
     await db_connector.disconnect()
 
 
 @app.get("/add/{region}")
-async def add_pair(region: str, query: Optional[str] = None):
+async def add_pair(region: str, query: Optional[str] = None) -> dict:
     pair_id = await db_connector.select_id_from_pair_db(region=region, query=query)
     
     if pair_id:
@@ -47,7 +47,7 @@ async def add_pair(region: str, query: Optional[str] = None):
 
 
 @app.get("/stat/{id}")
-async def show_stats(id: int, start: Union[str, float, int] = None, end: Union[str, float, int] = None):
+async def show_stats(id: int, start: Union[str, float, int] = None, end: Union[str, float, int] = None) -> dict:
     try:
         start_ts = datetime.fromisoformat(start).timestamp() if start else 0
     except ValueError:
