@@ -16,13 +16,8 @@ db_connector = DatabaseConnector()
 
 @app.on_event("startup")
 async def start_consuming():
-    # FIXME
     await db_connector.connect(USER, PASSWORD, HOST, DATABASE)
-    # await db_connector.show_all_tables()
-    # await db_connector.select_id_from_pair_db('Ufa', 'Trad')
-    # await db_connector.insert_to_pair_db('Ufa', 'Trad')
-    # await db_connector.insert_to_counter_db(1234567890.1, 434, 4)
-    # asyncio.create_task(db_connector._parse_every_hour())
+    asyncio.create_task(db_connector._parse_every_hour())
 
 
 @app.on_event("shutdown")
@@ -53,8 +48,15 @@ async def add_pair(region: str, query: Optional[str] = None):
 
 @app.get("/stat/{id}")
 async def show_stats(id: int, start: Union[str, float, int] = None, end: Union[str, float, int] = None):
-    start_ts = datetime.fromisoformat(start).timestamp() if start else 0
-    end_ts = datetime.fromisoformat(end).timestamp() if start else 4128951923.0
+    try:
+        start_ts = datetime.fromisoformat(start).timestamp() if start else 0
+    except ValueError:
+        start_ts = float(start.replace(',', '.'))
+    
+    try:
+        end_ts = datetime.fromisoformat(end).timestamp() if end else 9999999999
+    except ValueError:
+        end_ts = float(end.replace(',', '.'))
     timestamp_tuple, count_tuple = await db_connector.select_ts_from_counter_db(pair_id=id, start=start_ts, end=end_ts)
     return {"id": id, "timestamp": timestamp_tuple, "count": count_tuple}
 
