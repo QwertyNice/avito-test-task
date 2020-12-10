@@ -4,14 +4,16 @@ import requests
 
 class Requester:
 
-    def __init__(self):
-        self.row_url = 'https://www.avito.ru/{}'
+    def __init__(self, region, params=None):
+        self._row_url = 'https://www.avito.ru/{}'
+        self._url = self._prepare_request(region=region)
+        self.answer = self._make_request(params=params)
 
-    def prepare_request(self, region):
-        self.url = self.row_url.format(region)
+    def _prepare_request(self, region):
+        return self._row_url.format(region)
 
-    def make_request(self, params=None):
-        return requests.get(self.url, params=params).text
+    def _make_request(self, params):
+        return requests.get(self._url, params=params).text
 
 
 class Parser:
