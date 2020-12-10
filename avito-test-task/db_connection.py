@@ -31,16 +31,9 @@ class DatabaseConnector():
             with cursor:
                 cursor.execute(query)
                 for tup in cursor:
-<<<<<<< HEAD
                     requester_instance = requester(region=tup[1].lower(),
                                                    params={'q': tup[2]})  # FIXME
                     parser_instance = parser(raw_answer=requester_instance.answer, query=tup[2], skip_check=True)
-=======
-                    requester_instance = requester()
-                    requester_instance.prepare_request(tup[1].lower())  # FIXME
-                    answer = requester_instance.make_request(params={'q': tup[2]})  # FIXME
-                    parser_instance = parser(raw_answer=answer, query=tup[2], skip_check=True)
->>>>>>> 804f027cb14308a0a6b319671d5bf5ee219f8b78
                     count = parser_instance.parse_count(q=tup[2])
                     timestamp = round(datetime.now().timestamp(), 1)
                     await self.insert_to_counter_db(timestamp=timestamp, count=count, pair_id=tup[0])
