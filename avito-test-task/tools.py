@@ -12,7 +12,7 @@ class Requester:
     Parameters
     ----------
     region : str
-        Russian region for ads search.
+        Russian region for advertisement search.
     params : dict, optional
         Additional parameters for searching request.
 
@@ -44,7 +44,7 @@ class Requester:
         Parameters
         ----------
         region : str
-            Russian region for ads search.
+            Russian region for advertisement search.
 
         Returns
         -------
@@ -74,6 +74,41 @@ class Requester:
 
 
 class Parser:
+    """Class for pasrsing the source code and getting the number of 
+    advertisement.
+
+    This class performs some preparations before parsing. First, the validity 
+    of the entered region is checked, if successful, then the validity of the 
+    entered query is checked.   It contains the attributes, which are listed 
+    below.
+
+    Parameters
+    ----------
+    raw_answer : str
+        Source code of the page as a text.
+    query : str, optional
+        Query which we are looking for the number of advertisement.
+    skip_check : bool, optional
+        A flag used to parse source code without checking validity (default 
+        is False)
+
+    Attributes
+    ----------
+    raw_answer : str
+        Source code of the page as a text.
+    error : str, optional
+        If the region or query is entered incorrectly, then this attribute 
+        contains the error message text, otherwise None.
+    valid_region : bool
+        If this attribute is true, then the region is entered correctly.
+    query : str, optional
+        Correct existing query in avito page.
+
+    Note
+    ----
+    If `query` is not passed (is None), then this class will parse all 
+    advertisement in this region.
+    """
 
     def __init__(self, raw_answer: str, query: Optional[str] = None, 
                  skip_check: bool = False):
@@ -89,22 +124,64 @@ class Parser:
             self.query = query
 
     def _prepare_to_parse(self) -> Type[HtmlElement]:
-        """Функция преобразовывает код страницы в дерево"""
+        """Converts the page source code into HtmlElement tree.
+
+        Returns
+        -------
+        type[HtmlElement]
+            Source code HtmlElement tree.
+        
+        """
+
         return fromstring(self.raw_answer)
 
     def _check_valid_region(self) -> bool:
-        """Функция проверяет, правильно ли пользователь ввел регион"""
+        """Checks if the user entered the correct region.
+
+        Returns
+        -------
+        bool
+            True if region is correct, False otherwise.
+        
+        """
+
         answer = self.__tree.xpath('//div[@class="b-404"]/h1/text()')
         if answer:
-            self.error = 'Введен невалидный регион'
+            self.error = "Invalid region is entered"
         return not answer
 
     def _check_valid_query(self, q: Optional[str] = None) -> bool:
-        """Функция проверяет, правильно ли пользователь ввел запрос"""
+        """Checks if the user entered the correct query.
+
+        Parameters
+        ----------
+        q : str, optional
+            Query which we are looking for the number of advertisement.
+
+        Returns
+        -------
+        bool
+            True if query is correct, False otherwise.
+        
+        """
+
         return self.parse_count(q=q) != 0
 
     def parse_count(self, q: Optional[str] = None) -> int:
-        """Функция парсит преобразованное дерево и выводит количество обьявлений"""
+        """Parses the source code HtmlElement tree and gets a number of adv
+
+        Parameters
+        ----------
+        q : str, optional
+            Query which we are looking for the number of advertisement.
+
+        Returns
+        -------
+        int
+            The number of advertisement.
+        
+        """
+
         if q:
             count = self.__tree.xpath(
                 '//span[starts-with(@class, "page-title-count")]/text()')
@@ -112,8 +189,8 @@ class Parser:
                 count = int(count[0].replace(' ', ''))
             else:
                 count = 0
-                # FIXME Исправить синтаксичесическую часть предложения
-                self.error = 'Введен невалидный запрос или количество объявлений по нему ноль'
+                self.error = "Invalid query is entered or the number of " \
+                             "advertisement is zero"
             return count
         else:
             count = self.__tree.xpath(
@@ -122,11 +199,26 @@ class Parser:
             return count
 
     def _correct_mistake_in_query(self, q: Optional[str] = None) -> Optional[str]:
-        """Функция исправляет ошибки в запросе, если они есть"""
+        """Corrects errors in the query, if they exist.
+
+        Parameters
+        ----------
+        q : str, optional
+            Query which we are looking for the number of advertisement.
+
+        Returns
+        -------
+        str, optional
+            The syntax corrected query.
+        
+        """
+        
         if q:
-            q = self.__tree.xpath('//div[starts-with(@class, "index-suggest-")]/input/@value')
+            q = self.__tree.xpath('//div[starts-with(@class, ' \
+                '"index-suggest-")]/input/@value')
             if q:
                 q = q[0]
             else:
-                q = self.__tree.xpath('//div[starts-with(@class, "category-select-select")]/select/option[@selected]/text()')[0]
+                q = self.__tree.xpath('//div[starts-with(@class, "category-' \
+                    'select-select")]/select/option[@selected]/text()')[0]
         return q
