@@ -27,7 +27,8 @@ async def shutdown() -> None:
 
 @app.get("/add/{region}")
 async def add_pair(region: str, query: Optional[str] = None) -> dict:
-    pair_id = await db_connector.select_id_from_pair_db(region=region, query=query)
+    pair_id = await db_connector.select_id_from_pair_db(region=region, 
+                                                        query=query)
     
     if pair_id:
         return {"id": pair_id}
@@ -38,16 +39,19 @@ async def add_pair(region: str, query: Optional[str] = None) -> dict:
         return {"id": parser.error}
 
     # Проверяем есть ли такой id после исправления ошибок в запросе
-    pair_id = await db_connector.select_id_from_pair_db(region=region, query=parser.query)
+    pair_id = await db_connector.select_id_from_pair_db(region=region, 
+                                                        query=parser.query)
     if pair_id:
         return {"id": pair_id}
     
-    pair_id = await db_connector.insert_to_pair_db(region=region, query=parser.query)
+    pair_id = await db_connector.insert_to_pair_db(region=region, 
+                                                   query=parser.query)
     return {"id": pair_id}
 
 
 @app.get("/stat/{id}")
-async def show_stats(id: int, start: Union[str, float, int] = None, end: Union[str, float, int] = None) -> dict:
+async def show_stats(id: int, start: Union[str, float, int] = None, 
+                     end: Union[str, float, int] = None) -> dict:
     try:
         start_ts = datetime.fromisoformat(start).timestamp() if start else 0
     except ValueError:
@@ -57,7 +61,8 @@ async def show_stats(id: int, start: Union[str, float, int] = None, end: Union[s
         end_ts = datetime.fromisoformat(end).timestamp() if end else 9999999999
     except ValueError:
         end_ts = float(end.replace(',', '.'))
-    timestamp_tuple, count_tuple = await db_connector.select_ts_from_counter_db(pair_id=id, start=start_ts, end=end_ts)
+    timestamp_tuple, count_tuple = await db_connector.select_ts_from_counter_db(
+        pair_id=id, start=start_ts, end=end_ts)
     return {"id": id, "timestamp": timestamp_tuple, "count": count_tuple}
 
 
