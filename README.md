@@ -15,11 +15,11 @@ If you already have <a href="https://dev.mysql.com/doc/refman/8.0/en/">MySQL ser
 
 Clone the repository from GitHub. Then create a virtual environment, and install all the dependencies.
 ```console
-git clone https://github.com/QwertyNice/avito-test-task.git
-python3 -m venv env
-source env/bin/activate
-cd avito-test-task/
-python -m pip install -r requirements.txt
+$ git clone https://github.com/QwertyNice/avito-test-task.git
+$ python3 -m venv env
+$ source env/bin/activate
+$ cd avito-test-task/
+$ python -m pip install -r requirements.txt
 
 ---> 100%
 ```
