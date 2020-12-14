@@ -198,7 +198,8 @@ class Parser:
             count = int(count[0].replace(',', ''))
             return count
 
-    def _correct_mistake_in_query(self, q: Optional[str] = None) -> Optional[str]:
+    def _correct_mistake_in_query(self, 
+                                  q: Optional[str] = None) -> Optional[str]:
         """Corrects errors in the query, if they exist.
 
         Parameters
