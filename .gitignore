@@ -3,4 +3,3 @@
 .vscode/
 env/
 tests/
-secretinfo.py
