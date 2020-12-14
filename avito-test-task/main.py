@@ -4,7 +4,6 @@ from typing import Optional, Union
 from fastapi import FastAPI
 from lxml.html import fromstring
 import requests
-import uvicorn
 from db_connection import DatabaseConnector
 from secretinfo import USER, PASSWORD, HOST, DATABASE
 from tools import Requester, Parser
@@ -16,14 +15,14 @@ db_connector = DatabaseConnector()
 
 @app.on_event("startup")
 async def start_consuming() -> None:
-    """Connects to the database then starts concurrent task with parse loop"""
+    """Connects to the database then starts concurrent task with parse loop."""
     await db_connector.connect(USER, PASSWORD, HOST, DATABASE)
-    asyncio.create_task(db_connector._parse_loop(time_loop=15))
+    asyncio.create_task(db_connector._parse_loop(time_loop=3600))
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
-    """Disconnects from the database then shutdown"""
+    """Disconnects from the database then shutdown."""
     await db_connector.disconnect()
 
 
@@ -46,7 +45,7 @@ async def add_pair(region: str, query: Optional[str] = None) -> dict:
     """
 
     pair_id = await db_connector.select_id_from_pair_table(region=region, 
-                                                        query=query)
+                                                           query=query)
     
     if pair_id:
         return {"id": pair_id}
@@ -59,12 +58,12 @@ async def add_pair(region: str, query: Optional[str] = None) -> dict:
     # Check again if such pair id is in database after correcting syntax errors 
     # in the query
     pair_id = await db_connector.select_id_from_pair_table(region=region, 
-                                                        query=parser.query)
+                                                           query=parser.query)
     if pair_id:
         return {"id": pair_id}
     
     pair_id = await db_connector.insert_to_pair_table(region=region, 
-                                                   query=parser.query)
+                                                      query=parser.query)
     return {"id": pair_id}
 
 
