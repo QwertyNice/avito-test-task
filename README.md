@@ -46,3 +46,19 @@ $ docker-compose up -d
 
 ---> 100%
 ```
+
+## Example
+
+Imagine you want to add region `Moscow` and query `Car`.
+Open your browser at <a href="http://127.0.0.1:8000/add/moskva?query=car">http://127.0.0.1:8000/add/moskva?query=car</a>.
+
+You will see the JSON response as:
+
+```JSON
+{"id": 1}
+```
+
+If you want to check number of advertisement for query `Car` and region `Moscow` (with id=1) after a while, open your browser at <a href="http://127.0.0.1:8000/stat/1">http://127.0.0.1:8000/stat/1</a>.
+If you want to check for period between `16:20:45 14.12.2020` and `14:40:11 15.12.2020`, open your browser at <a href="http://127.0.0.1:8000/stat/1?start=2020-12-14T16:20:45&end=2020-12-15T14:40:11">http://127.0.0.1:8000/stat/1?start=2020-12-14T16:20:45&end=2020-12-15T14:40:11</a> or using corresponding timestamps.
+
+
