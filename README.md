@@ -64,7 +64,7 @@ If you want to check for time period between `16:20:45 14.12.2020` and `14:40:11
 You will see the JSON response as:
 
 ```JSON
-{"id": 1, "timestamp": (123456789.0, 12345999.2), "count": (56907, 56992)}
+{"id": 1, "timestamp": [123456789.0, 12345999.2], "count": [56907, 56992]}
 ```
 
 
