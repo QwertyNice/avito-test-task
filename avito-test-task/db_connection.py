@@ -48,7 +48,6 @@ class DatabaseConnector():
                                             host=host, database=database)
         await self._check_tables_exist()
         print(f'Connected to the {database} database')
-        
 
     async def disconnect(self) -> None:
         """"Disconnects from the MySQL database server."""
@@ -91,7 +90,8 @@ class DatabaseConnector():
                     timestamp = round(datetime.now().timestamp(), 1)
                     await self.insert_to_counter_table(timestamp=timestamp, 
                                                     count=count, pair_id=tup[0])
-                    print(f'Added to counter table: {count=}, {timestamp=}, pair_id={tup[0]}') # DELETE
+                    print(f'Added to counter table: {count=}, {timestamp=}, ' \
+                          f'pair_id={tup[0]}')
 
     async def _check_tables_exist(self) -> None:
         """Checks `pair` and `counter` tables  are exist in the database,
@@ -158,6 +158,7 @@ class DatabaseConnector():
             Pair id for the region and query.
         
         """
+
         cursor = self.conn.cursor()
         with cursor:
             db_query = "INSERT INTO pair (region, query) VALUES (%s, %s);"
@@ -214,6 +215,7 @@ class DatabaseConnector():
             For example: (123456789.0, 222222222.2), (456, 3908) 
         
         """
+        
         db_query = "SELECT timestamp, count FROM counter WHERE " \
                    "timestamp >= %s AND timestamp <= %s AND pair_id=%s"
         cursor = self.conn.cursor()
