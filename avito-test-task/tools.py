@@ -192,6 +192,7 @@ class Parser:
                 self.error = "Invalid query is entered or the number of " \
                              "advertisement is zero"
             return count
+        
         else:
             count = self.__tree.xpath(
                 '//span[starts-with(@class, "category-with-counters-count")]/text()')
