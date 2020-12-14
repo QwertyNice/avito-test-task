@@ -1,0 +1,5 @@
+fastapi==0.62.0
+lxml==4.6.2
+mysql-connector-python==8.0.22
+requests==2.25.0
+uvicorn==0.12.3
