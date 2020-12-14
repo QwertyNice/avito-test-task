@@ -1,13 +1,13 @@
-This application was made as an internship assignment to Avito company. It allows you to track the number of ads by the specific request and region with the appropriate timestamps for further analysis.
+This application was made as an internship assignment to Avito company. It allows you to track the number of advertisement by the specific query and region with the corresponding timestamps for further analysis.
 
 ## Requirements
 
 * Python 3.8
 * MySQL server 8.0
-* <a href="https://fastapi.tiangolo.com/">FastApi</a>
+* <a href="https://fastapi.tiangolo.com/">FastAPI</a>
 * <a href="https://lxml.de/">lxml</a>
-* <a href="https://dev.mysql.com/doc/connector-python/en/">mysql-connector-python</a>
-* <a href="https://requests.readthedocs.io/en/master/">requests</a>
+* <a href="https://dev.mysql.com/doc/connector-python/en/">Mysql-connector-python</a>
+* <a href="https://requests.readthedocs.io/en/master/">Requests</a>
 * <a href="https://www.uvicorn.org/">Uvicorn</a>
 
 ## Installation and run
