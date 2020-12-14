@@ -1,3 +1,5 @@
+This application was made as an internship assignment to Avito company. It allows you to track the number of ads by the specific request and region with the appropriate timestamps for further analysis.
+
 ## Requirements
 
 * Python 3.8
@@ -66,5 +68,3 @@ You will see the JSON response as:
 ```JSON
 {"id": 1, "timestamp": [123456789.0, 12345999.2], "count": [56907, 56992]}
 ```
-
-
